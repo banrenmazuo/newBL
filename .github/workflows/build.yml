@@ -18,7 +18,16 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          CMDL="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -f "$CMDL" ]; then
+            CMDL="${ANDROID_HOME}/cmdline-tools/16.0/bin/sdkmanager"
+          fi
+          echo "Using sdkmanager: $CMDL"
+          yes | "$CMDL" --licenses > /dev/null 2>&1 || true
+          yes | "$CMDL" "platforms;android-36" "build-tools;36.0.0" "platform-tools" > /dev/null 2>&1 || true
 
       - name: Grant execution permission
         run: chmod +x gradlew
