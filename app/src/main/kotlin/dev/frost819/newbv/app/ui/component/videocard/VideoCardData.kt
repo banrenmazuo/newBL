@@ -1,0 +1,65 @@
+package dev.frost819.newbv.app.ui.component.videocard
+
+import dev.frost819.newbv.app.util.formatHourMinSec
+import dev.frost819.newbv.app.util.toWanString
+import dev.frost819.newbv.biliapi.entity.video.RelatedVideo
+
+/**
+ * 视频卡片数据。
+ *
+ * 用于 [SmallVideoCard] 的展示数据，由 [dev.frost819.newbv.biliapi.entity.ugc.UgcItem]
+ * 或 [dev.frost819.newbv.biliapi.entity.user.DynamicVideo] 转换而来。
+ *
+ * @property avid 视频 AV 号。
+ * @property bvid 视频 BV 号（用于 API 查询，部分大 AV 号需通过 BV 号查询）。
+ * @property cid 视频 CID。
+ * @property epid 番剧 EP ID（PGC 动态时有值）。
+ * @property title 视频标题。
+ * @property cover 封面 URL。
+ * @property upName UP 主名称。
+ * @property upMid UP 主 MID。
+ * @property playString 播放数显示字符串（已格式化）。
+ * @property danmakuString 弹幕数显示字符串（已格式化）。
+ * @property timeString 时长显示字符串（已格式化）。
+ * @property pubTime 发布时间显示字符串。
+ * @property progress 播放进度比例（0.0–1.0），null 表示不显示进度条。
+ */
+data class VideoCardData(
+    val avid: Long,
+    val bvid: String = "",
+    val cid: Long? = null,
+    val epid: Int? = null,
+    val title: String,
+    val cover: String,
+    val upName: String,
+    val upMid: Long? = null,
+    val playString: String = "",
+    val danmakuString: String = "",
+    val timeString: String = "",
+    val pubTime: String? = null,
+    val progress: Float? = null,
+) {
+    companion object {
+        /**
+         * 由相关视频 [RelatedVideo] 转换。
+         *
+         * 番剧条目只保留 EP ID（用于跳转番剧详情），UGC 条目携带 cid。
+         */
+        fun fromRelatedVideo(related: RelatedVideo): VideoCardData =
+            VideoCardData(
+                avid = related.aid,
+                cid = related.cid,
+                epid = related.epid?.takeIf { related.jumpToSeason },
+                title = related.title,
+                cover = related.cover,
+                upName = related.author?.name ?: "",
+                upMid = related.author?.mid,
+                playString = related.view.toWanString(),
+                danmakuString = related.danmaku.toWanString(),
+                timeString = (related.duration * 1000L).formatHourMinSec(),
+            )
+    }
+}
+
+/** 视频卡是否为番剧（有有效 EP ID）。 */
+val VideoCardData.isPgc: Boolean get() = (epid ?: 0) != 0
