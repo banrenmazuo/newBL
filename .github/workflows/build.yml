@@ -22,21 +22,29 @@ jobs:
           ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           CMDL="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -f "$CMDL" ]; then
-            CMDL="${ANDROID_HOME}/cmdline-tools/16.0/bin/sdkmanager"
-          fi
-          echo "Using sdkmanager: $CMDL"
+          [ ! -f "$CMDL" ] && CMDL="${ANDROID_HOME}/cmdline-tools/16.0/bin/sdkmanager"
           yes | "$CMDL" --licenses > /dev/null 2>&1 || true
           yes | "$CMDL" "platforms;android-36" "build-tools;36.0.0" "platform-tools" > /dev/null 2>&1 || true
+
+      - name: Generate signing key
+        run: |
+          keytool -genkey -v -keystore release.keystore \
+            -alias release -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass android -keypass android \
+            -dname "CN=newBL, OU=dev, O=newBL, L=City, S=State, C=CN"
+          echo "releaseStoreFile=release.keystore" > signing.properties
+          echo "releaseStorePassword=android" >> signing.properties
+          echo "releaseKeyAlias=release" >> signing.properties
+          echo "releaseKeyPassword=android" >> signing.properties
 
       - name: Grant execution permission
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: newBL-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: newBL-release-apk
+          path: app/build/outputs/apk/release/*.apk
