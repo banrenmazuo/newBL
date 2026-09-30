@@ -50,7 +50,10 @@ fun LivePlayerScreen(
     // 双击退出：TV 遥控器（Controller onBack）和非 TV（BackHandler）共用同一计时器
     val handleBack =
         rememberDoublePressExit(
-            onExit = { navController.popBackStack() },
+            onExit = {
+                viewModel.clearScreenBeforeExit()
+                navController.popBackStack()
+            },
             message = "再按一次退出播放",
         )
     BackHandler { handleBack() }

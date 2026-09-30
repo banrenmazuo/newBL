@@ -417,9 +417,15 @@ class PlayerViewModel
             newPlayer.speed = initialSpeed
         }
 
+        /** 退出前立即清除视频画面，避免 Navigation pop 动画期间最后一帧残留。 */
+        fun clearScreenBeforeExit() {
+            videoPlayer?.clearSurface()
+        }
+
         /** 释放播放器资源，同步进度到 B 站。 */
         fun detachPlayer() {
             syncProgress(scope = detachedWorkScope, isDetaching = true)
+            videoPlayer?.clearSurface()
             videoPlayer?.release()
             videoPlayer = null
             stopSeekerUpdater()

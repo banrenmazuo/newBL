@@ -54,6 +54,9 @@ abstract class AbstractVideoPlayer {
     /** 跳转到指定播放位置（毫秒） */
     abstract fun seekTo(time: Long)
 
+    /** 清除视频画面（停止 + 清空 Surface），用于退出前避免最后一帧残留 */
+    open fun clearSurface() {}
+
     /** 释放播放器资源 */
     abstract fun release()
 

@@ -226,7 +226,14 @@ class ExoMediaPlayer(
     }
 
     override fun release() {
+        mPlayer?.stop()
+        mPlayer?.clearVideoSurface()
         mPlayer?.release()
+    }
+
+    override fun clearSurface() {
+        mPlayer?.stop()
+        mPlayer?.clearVideoSurface()
     }
 
     override val currentPosition: Long

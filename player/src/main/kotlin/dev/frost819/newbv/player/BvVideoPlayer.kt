@@ -38,6 +38,7 @@ fun BvVideoPlayer(
                 playerView.player = videoPlayer.mPlayer
             },
             onRelease = { playerView ->
+                playerView.player?.stop()
                 playerView.player = null
             },
         )

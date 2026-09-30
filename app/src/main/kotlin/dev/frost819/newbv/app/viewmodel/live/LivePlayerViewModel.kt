@@ -474,6 +474,11 @@ class LivePlayerViewModel
                 playInfo.lines.firstOrNull { it.order == preferredOrder } ?: playInfo.lines.first()
             }
 
+        /** 退出前立即清除视频画面，避免 Navigation pop 动画期间最后一帧残留。 */
+        fun clearScreenBeforeExit() {
+            videoPlayer?.clearSurface()
+        }
+
         /**
          * 释放播放器资源。
          *
@@ -482,6 +487,7 @@ class LivePlayerViewModel
         fun detachPlayer() {
             wsJob?.cancel()
             stopDebugInfoUpdater()
+            videoPlayer?.clearSurface()
             videoPlayer?.release()
             videoPlayer = null
             danmakuPlayer = null

@@ -125,6 +125,7 @@ fun VideoPlayerScreen(
         playerViewModel.uiEffect.collect { effect ->
             when (effect) {
                 dev.frost819.newbv.app.ui.state.player.PlayerUiEffect.FinishActivity -> {
+                    playerViewModel.clearScreenBeforeExit()
                     navController.popBackStack()
                 }
                 is dev.frost819.newbv.app.ui.state.player.PlayerUiEffect.ShowToast -> {
@@ -235,7 +236,10 @@ fun VideoPlayerScreen(
     // 双击退出：TV 遥控器（Controller onExit）和非 TV（BackHandler）共用同一计时器
     val handleBack =
         rememberDoublePressExit(
-            onExit = { navController.popBackStack() },
+            onExit = {
+                playerViewModel.clearScreenBeforeExit()
+                navController.popBackStack()
+            },
             message = "再按一次退出播放",
         )
     BackHandler { handleBack() }
